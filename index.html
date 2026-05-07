@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description" content="Contact-Lock: Contact-topology lock-in in vanilla trajectory diffusion models — readout, causal malleability, and target-directed controllability are independently measurable.">
+  <meta name="keywords" content="diffusion models, trajectory diffusion, contact-rich manipulation, phase transition, mechanistic interpretability, NeurIPS 2026">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Contact-Lock: Contact-Topology Lock-In in Trajectory Diffusion Models</title>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+
+
+<!-- Hero / Title -->
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-2 publication-title">
+            Contact-Topology Lock-In<br>
+            in Trajectory Diffusion Models
+          </h1>
+          <p class="subtitle is-5" style="margin-top: 0.5rem; color: #5a5a5a;">
+            Project alias: <strong>Contact-Lock</strong>
+          </p>
+
+          <div class="is-size-5 publication-authors">
+            <span class="author-block">Anonymous Author(s)</span>
+          </div>
+
+          <div class="is-size-6 has-text-centered" style="margin-top: 0.4rem; color: #6b6b6b;">
+            Under double-blind review at NeurIPS 2026
+          </div>
+
+          <div class="publication-links has-text-centered">
+            <span class="link-block">
+              <a href="https://anonymous.4open.science/r/contact-lock-C409" target="_blank" rel="noopener"
+                 class="external-link button is-normal is-rounded is-dark">
+                <span class="icon"><i class="fas fa-code"></i></span>
+                <span>Anonymous Code</span>
+              </a>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- TL;DR -->
+<section class="section hero is-light" style="padding-top: 2rem; padding-bottom: 2rem;">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-4">TL;DR</h2>
+        <div class="content has-text-justified">
+          <p>
+            Vanilla trajectory DDPMs trained without contact supervision
+            organize <strong>peak-contact topology</strong> into a sharp
+            mid-noise lock-in window (<em>t</em> &isin; [600, 400] under a
+            linear schedule). Inside that window, contact graphs become
+            decodable from intermediate states <em>and</em> causally
+            malleable under paired interventions &mdash; but
+            <strong>target-directed controllability under naive classifier
+            guidance does not follow</strong>: decodable gradients are not,
+            in general, reliable control fields.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Abstract -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Diffusion reverse time has become a useful microscope for
+            structural variables learned by generative models, but little is
+            known about what discrete physical structure is organized inside
+            trajectory diffusion. We study peak-contact topology &mdash; the
+            graph of which bodies touch &mdash; as a measurable order
+            parameter for contact-rich trajectory DDPMs. Using vanilla DDPMs
+            trained without contact supervision on three controlled
+            contact-physics families (spanning two simulators, two
+            dimensionalities, and distinct dynamical regimes, with
+            10&ndash;15 candidate contact edges and 449&ndash;559 realized
+            peak-contact classes per scene), we introduce a three-axis
+            protocol that separately measures <em>readout</em>,
+            <em>causal malleability</em>, and <em>target-directed
+            controllability</em>.
+          </p>
+          <p>
+            Across all scenes, contact graphs become sharply decodable in a
+            common mid-noise band (<em>t</em> &isin; [600, 400] under our
+            linear DDPM schedule); paired interventions show maximal causal
+            leverage near the band's onset and strongest
+            directed-vs-random specificity within it. Twelve controls
+            &mdash; including a matched-SNR forward-noising null &mdash;
+            rule out distance, label-noise, class-imbalance, probe-capacity,
+            label-granularity, threshold-calibration, seed-specific, and
+            pure-SNR explanations: reverse readout jumps exceed
+            forward-noising jumps by 1.94&times;, 1.23&times;, and
+            3.76&times; on the three scenes. Yet readout is not control:
+            across all scenes, training-free probe-gradient guidance is
+            target-directed on the small subset of exact-hit trajectories
+            but yields no statistically supported positive population-level
+            target alignment under consistent-sample evaluation. The
+            contribution is mechanistic &mdash; a three-axis operational
+            separation of decodability, causal malleability, and reliable
+            controllability, proposed as a template for studying physical
+            diffusion dynamics &mdash; and methodological in showing that
+            contact-aware planning requires more than naive contact-gradient
+            steering.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Result 1: Readout transition -->
+<section class="section" style="padding-top: 0;">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Readout: Contact Topology Becomes Decodable in <em>t</em> &isin; [600, 400]</h2>
+    <p class="content has-text-justified">
+      A time-step-conditioned probe trained on intermediate DDPM states
+      shows a sharp jump in pair-F1 in the same mid-noise window on every
+      scene: <strong>BD5</strong> +0.089&nbsp;(0.771&rarr;0.860),
+      <strong>CD2</strong> +0.162&nbsp;(0.588&rarr;0.750),
+      <strong>2D-Disc</strong> +0.287&nbsp;(0.360&rarr;0.647). Three
+      independent probe seeds reproduce the transition to per-anchor
+      pair-F1 std &le; 0.013.
+    </p>
+    <figure class="image">
+      <img src="static/images/fig1_probe_transition.png" alt="Probe pair-F1 vs. denoising timestep on three scenes." style="max-width: 100%; height: auto;">
+    </figure>
+    <p class="figure-caption">
+      <strong>Contact Mode Probe readout vs. denoising timestep <em>t</em>.</strong>
+      Pair-F1 (left) and peak-mode top-1 accuracy (right). All three scenes
+      show a sharp jump in <em>t</em> &isin; [600, 400] (yellow band).
+    </p>
+  </div>
+</section>
+
+
+<!-- Result 2: Causal bell -->
+<section class="section" style="padding-top: 0;">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Causal Malleability Peaks at the Lock-In Window's Onset</h2>
+    <p class="content has-text-justified">
+      Paired single-step interventions place <em>absolute</em> flip-rate
+      maximum at the window's onset (BD5: <em>t</em>&nbsp;&asymp;&nbsp;650,
+      <em>M</em>&nbsp;=&nbsp;0.548; CD2: <em>t</em>&nbsp;&asymp;&nbsp;600,
+      <em>M</em>&nbsp;=&nbsp;0.628). The directed-vs-random specificity
+      <em>S(t)</em> peaks <em>within</em> the window
+      (<em>t</em>&nbsp;&asymp;&nbsp;500, ~5&ndash;6&times; on 3D scenes).
+      Both directed and random perturbations lose absolute effectiveness
+      as denoising proceeds, but random ones lose it faster.
+    </p>
+    <figure class="image">
+      <img src="static/images/fig2_causal_bell.png" alt="Mode-flip rate vs. intervention timestep on three scenes." style="max-width: 100%; height: auto;">
+    </figure>
+    <p class="figure-caption">
+      <strong>Mode-flip rate vs. intervention step <em>t</em>.</strong>
+      Sparse-grid (left, centre) and dense-grid (right) interventions on
+      the 3D scenes; random perturbations (grey) are flat.
+    </p>
+  </div>
+</section>
+
+
+<!-- Result 3: Forward vs reverse / SNR null -->
+<section class="section" style="padding-top: 0;">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">The Transition Is Not Pure SNR</h2>
+    <p class="content has-text-justified">
+      A matched-SNR forward-noising null trains the same per-pair probe on
+      <em>q</em>(<em>x</em><sub><em>t</em></sub>&nbsp;|&nbsp;<em>x</em><sub>0</sub>)
+      of real trajectories &mdash; probe inputs at matched <em>t</em> have
+      matched log-SNR by construction. In the lock-in window, the
+      <em>reverse</em> generative pair-F1 jump exceeds the forward jump by
+      <strong>1.94&times;</strong> (BD5), <strong>1.23&times;</strong>
+      (CD2), and <strong>3.76&times;</strong> (2D-Disc).
+    </p>
+    <figure class="image">
+      <img src="static/images/fig_forward_vs_reverse.png" alt="Forward-noised vs. reverse-generated pair-F1 across denoising time." style="max-width: 100%; height: auto;">
+    </figure>
+    <p class="figure-caption">
+      <strong>Reverse vs. forward-noised pair-F1.</strong> The lock-in
+      window is highlighted; reverse generative dynamics resolves contact
+      topology faster than forward Gaussian noising at matched noise level.
+    </p>
+    <div class="takeaway">
+      <strong>Takeaway.</strong> Reverse generative dynamics organizes
+      contact topology faster than forward Gaussian noising at matched
+      log-SNR &mdash; the lock-in transition is not an information-theoretic
+      SNR phenomenon.
+    </div>
+  </div>
+</section>
+
+
+<!-- Result 4: Controllability gap -->
+<section class="section" style="padding-top: 0;">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Readout Is Not Control: The Cross-Scene Controllability Gap</h2>
+    <p class="content has-text-justified">
+      No classifier-guidance condition we tested has statistically
+      supported net-positive target alignment on any scene under
+      consistent-sample evaluation. Probe gradients are target-directed
+      on the small <em>exact-hit</em> subset
+      (&Delta;Ham&nbsp;|&nbsp;hit &asymp; +1.0 to +1.7) but the much
+      larger non-hit subset is pushed off-manifold. At matched perturbation
+      budget, narrow late-window guidance is statistically <em>tied</em>
+      with full-schedule guidance on hit rate on every scene
+      (paired-bootstrap CI for the gap: [&minus;0.018,&nbsp;+0.018] BD5,
+      [&minus;0.020,&nbsp;+0.040] CD2, [&minus;0.025,&nbsp;+0.010]
+      2D-Disc).
+    </p>
+    <figure class="image">
+      <img src="static/images/fig_cross_scene_control_gap.png" alt="Cross-scene controllability gap on BD5, CD2, 2D-Disc." style="max-width: 100%; height: auto;">
+    </figure>
+    <p class="figure-caption">
+      <strong>(a)</strong> Population-mean &Delta;Hamming under the
+      consistent valid mask, with bootstrap 95% CI error bars &mdash; no
+      guided condition has statistically supported net-positive alignment
+      on any scene. <strong>(b)</strong> Hit/miss decomposition: probe-grad
+      &Delta;|hit (green) is strongly positive on every scene; the much
+      larger non-hit population dominates the population mean.
+    </p>
+    <div class="takeaway">
+      <strong>Takeaway.</strong> Decodable classifier gradients are not, in
+      general, reliable control fields &mdash; the timesteps best for
+      paired-noise interventions and those best for classifier guidance
+      need not coincide.
+    </div>
+  </div>
+</section>
+
+
+<!-- Result 5: Cross-scene window -->
+<section class="section" style="padding-top: 0;">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Cross-Scene Lock-In Window Alignment</h2>
+    <p class="content has-text-justified">
+      Across simulator (MuJoCo / pymunk), dimensionality (3D / 2D), and
+      dynamical regime (gravity drop / elastic billiard), the
+      probe-derived readout window aligns on the same mid-noise band &mdash;
+      the cross-family invariant we report as the central mechanistic
+      finding.
+    </p>
+    <figure class="image">
+      <img src="static/images/fig10_cross_family_window.png" alt="Cross-family lock-in window alignment across BD5, CD2, 2D-Disc." style="max-width: 100%; height: auto;">
+    </figure>
+    <p class="figure-caption">
+      <strong>Cross-family alignment of the lock-in window.</strong>
+      The probe-derived readout transition coincides on
+      <em>t</em>&nbsp;&isin;&nbsp;[600, 400] across all three scenes.
+    </p>
+  </div>
+</section>
+
+
+<!-- Contributions -->
+<section class="section hero is-light">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Contributions</h2>
+    <div class="content">
+      <ul>
+        <li><strong>C1.</strong> <em>Contact topology as a discrete order
+          parameter.</em> The peak-contact graph is exactly observable from
+          the physics engine, combinatorial even at small body counts (449
+          / 559 / 454 realized classes), and amenable to paired causal
+          interventions.</li>
+        <li><strong>C2.</strong> <em>A three-axis mechanistic protocol</em>
+          measuring readout, causal malleability, and target-directed
+          controllability separately, with bootstrap CIs.</li>
+        <li><strong>C3.</strong> <em>Contact-topology lock-in is cross-scene
+          and not pure SNR.</em> Twelve artifact-exclusion controls plus
+          three DDPM training seeds per 3D scene rule out distance, label,
+          imbalance, probe-capacity, label-granularity, threshold, seed,
+          and pure-SNR explanations.</li>
+        <li><strong>C4.</strong> <em>Readout and causality do not imply
+          control.</em> No classifier-guidance condition we tested yields
+          net-positive target alignment under consistent-sample evaluation;
+          decodable gradients are not, in general, reliable control fields.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+
+<!-- BibTeX -->
+<section class="section">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">BibTeX</h2>
+    <pre class="bibtex-block"><code>@inproceedings{anonymous2026contactlock,
+  title  = {Contact-Topology Lock-In in Trajectory Diffusion Models},
+  author = {Anonymous Author(s)},
+  booktitle = {Submitted to the Annual Conference on
+               Neural Information Processing Systems (NeurIPS)},
+  year   = {2026},
+  note   = {Under double-blind review}
+}</code></pre>
+  </div>
+</section>
+
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container is-max-desktop has-text-centered">
+    <p>
+      Page template adapted from the
+      <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank" rel="noopener">Academic Project Page Template</a>
+      and the <a href="https://nerfies.github.io/" target="_blank" rel="noopener">Nerfies</a> page.
+      This page is anonymized for double-blind review.
+    </p>
+  </div>
+</footer>
+
+
+</body>
+</html>
